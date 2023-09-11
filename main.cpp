@@ -8,6 +8,8 @@
 #include <iostream>
 #include <math.h>
 
+#include "shader.h"
+
 static void glfwError(int id, const char* desc)
 {
     std::cout << "[GLFW Error]: " << desc << std::endl;
@@ -66,91 +68,13 @@ int main()
 
     glViewport(0, 0, width, height);
 
-    GLchar infoLog[512];
-    GLint success;
-
-    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-
-    std::string vertShaderStr = getShaderSourceFromFile("vertex.glsl");
-    const GLchar *vertShaderSrc = vertShaderStr.c_str();
-
-    glShaderSource(vertexShader, 1, &vertShaderSrc, nullptr);
-    glCompileShader(vertexShader);
-
-    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-
-    if (success == 0)
-    {
-        glGetShaderInfoLog(vertexShader, 512, nullptr, infoLog);
-        std::cout << "[Vert shader compilation]: Error: " << infoLog << std::endl;
-    }
-
-    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-
-    std::string fragShaderStr = getShaderSourceFromFile("fragment.glsl");
-    const GLchar *fragmentShaderSrc = fragShaderStr.c_str();
-
-    glShaderSource(fragmentShader, 1, &fragmentShaderSrc, nullptr);
-    glCompileShader(fragmentShader);
-
-    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-
-    if (!success)
-    {
-        glGetShaderInfoLog(fragmentShader, 512, nullptr, infoLog);
-        std::cout << "[Frag shader compilation]: Error: " << infoLog << std::endl;
-    }
-
-    GLuint fragmentShader2 = glCreateShader(GL_FRAGMENT_SHADER);
-    std::string fragShader2Str = getShaderSourceFromFile("fragment2.glsl");
-    const GLchar *fragment2ShaderSrc = fragShader2Str.c_str();
-
-    glShaderSource(fragmentShader2, 1, &fragment2ShaderSrc, nullptr);
-    glCompileShader(fragmentShader2);
-
-    glGetShaderiv(fragmentShader2, GL_COMPILE_STATUS, &success);
-
-    if (!success)
-    {
-        glGetShaderInfoLog(fragmentShader, 512, nullptr, infoLog);
-        std::cout << "[Frag shader2 compilation]: Error: " << infoLog << std::endl;
-    }
-
-    GLuint shaderProgram = glCreateProgram();
-
-    glAttachShader(shaderProgram,vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glLinkProgram(shaderProgram);
-
-    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-
-    if (!success)
-    {
-        glGetProgramInfoLog(shaderProgram, 512, nullptr, infoLog);
-        std::cout << "[Shader Program Link] Error: " << infoLog << std::endl;
-    }
-
-    GLuint shaderProgram2 = glCreateProgram();
-    glAttachShader(shaderProgram2, vertexShader);
-    glAttachShader(shaderProgram2, fragmentShader2);
-    glLinkProgram(shaderProgram2);
-
-    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-
-    if (!success)
-    {
-        glGetProgramInfoLog(shaderProgram, 512, nullptr, infoLog);
-        std::cout << "[Shader Program2 Link] Error: " << infoLog << std::endl;
-    }
-
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
-    glDeleteShader(fragmentShader2);
+    Shader shader1("vertex.glsl", "fragment.glsl");
+    Shader shader2("vertex.glsl", "fragment2.glsl");
 
     GLfloat vertices1[] = {
-            -0.8, -0.5, 0.0,
-            -0.5, 0.3, 0.0,
-            -0.2, -0.5, 0.0,
+            -0.8, -0.5, 0.0, 1.0, 0.0, 0.0,
+            -0.5, 0.3, 0.0, 0.0, 1.0, 0.0,
+            -0.2, -0.5, 0.0, 0.0, 0.0, 1.0
     };
 
     GLfloat vertices2[] = {
@@ -169,8 +93,11 @@ int main()
 
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices1), vertices1, GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), static_cast<GLvoid*>(0));
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), static_cast<GLvoid*>(0));
     glEnableVertexAttribArray(0);
+
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), reinterpret_cast<GLvoid*>(3 * sizeof(GLfloat)));
+    glEnableVertexAttribArray(1);
 
     glBindVertexArray(0);
 
@@ -194,19 +121,21 @@ int main()
         glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        GLfloat _time = glfwGetTime();
-        GLfloat redV = std::abs((std::sin(_time * 3)));
-        GLint vertColorLocation = glGetUniformLocation(shaderProgram, "vertColor");
+        shader1.use();
 
-        glUseProgram(shaderProgram);
-        glUniform4f(vertColorLocation, redV, 0.0, 0.0, 1.0);
         glBindVertexArray(vao1);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
         glBindVertexArray(0);
 
-        glUseProgram(shaderProgram2);
+        shader2.use();
+
+        GLfloat timeValue = glfwGetTime();
+        GLfloat redV = std::abs((sin(timeValue * 2)));
+        GLint vertexColorLocation = glGetUniformLocation(shader2.program, "animColor");
+        glUniform3f(vertexColorLocation, redV, 0.0f, 0.0f);
+
         glBindVertexArray(vao2);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
         glBindVertexArray(0);
 
         glfwPollEvents();
