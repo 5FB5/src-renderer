@@ -1,5 +1,5 @@
-#define WINDOW_WIDTH 800
-#define WINDOW_HEIGHT 600
+#define WINDOW_WIDTH 1280
+#define WINDOW_HEIGHT 800
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -21,8 +21,11 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode
 
 int main()
 {
+    if (!glfwInit())
+    {
+        std::cout << "[GLFW Init]: Can't init GLFW! Check library including" << std::endl;
+    }
     glfwSetErrorCallback(glfwError);
-    glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -67,9 +70,9 @@ int main()
     };
 
     GLfloat vertices3[] = {
-            -0.5f, -0.5f, 0.0f,
-            0.0f, 0.5f, 0.0f,
-            0.5, -0.5f, 0.0f
+            -0.8f, -0.8f, 0.0f,
+            0.0f, 0.8f, 0.0f,
+            0.8, -0.8f, 0.0f
     };
 
     GLuint VAOs[3], VBOs[3];
@@ -127,8 +130,9 @@ int main()
 
         GLfloat timeValue = glfwGetTime();
         GLfloat redV = std::abs((sin(timeValue * 2)));
+        GLfloat blueV = std::abs((sin(timeValue * 4)));
         GLint vertexColorLocation = glGetUniformLocation(shader2.program, "animColor");
-        glUniform3f(vertexColorLocation, redV, 0.0f, 0.0f);
+        glUniform3f(vertexColorLocation, redV, 0.3f, blueV);
 
         glBindVertexArray(VAOs[1]);
         glDrawArrays(GL_TRIANGLES, 0, 3);
