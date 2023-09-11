@@ -116,16 +116,27 @@ int main()
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
 
-    GLfloat vertices[] =
-            {
-                    -0.5f, -0.5f, 0.0f,
-                    0.5f, -0.5f, 0.0f,
-                    0.0f, 0.5f, 0.0f
-            };
+    GLfloat vertices[] = {
+            0.5f,  0.5f, 0.0f,  // Верхний правый угол
+            0.5f, -0.5f, 0.0f,  // Нижний правый угол
+            -0.5f, -0.5f, 0.0f,  // Нижний левый угол
+            -0.5f,  0.5f, 0.0f   // Верхний левый угол
+    };
+
+    GLuint indices[] = {
+            0, 1, 3,
+            1, 2, 3
+    };
+
 
     GLuint vao;
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
+
+    GLuint ebo;
+    glGenBuffers(1, &ebo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
     GLuint vbo;
     glGenBuffers(1, &vbo);
@@ -145,7 +156,9 @@ int main()
 
         glUseProgram(shaderProgram);
         glBindVertexArray(vao);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+//        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+//        glDrawArrays(GL_TRIANGLES, 0, 3);
         glBindVertexArray(0);
 
         glfwPollEvents();
@@ -154,8 +167,6 @@ int main()
 
     std::cout << "[src_renderer]: Closing window..." << std::endl;
 
-    glDeleteVertexArrays(1, &vao);
-    glDeleteBuffers(1, &vbo);
     glfwTerminate();
 
     return 0;
