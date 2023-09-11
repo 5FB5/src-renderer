@@ -3,6 +3,7 @@
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <sstream>
 #include <fstream>
 #include <iostream>
 
@@ -19,19 +20,14 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode
 
 std::string getShaderSourceFromFile(std::string filename)
 {
-    std::string result;
+    std::stringstream buffer;
     std::ifstream file(filename, std::ios::binary);
 
-    std::string line;
-    while(!file.eof())
-    {
-        std::getline(file, line);
-        result += line + '\n';
-    }
+    buffer << file.rdbuf();
 
     file.close();
 
-    return result;
+    return buffer.str();
 }
 
 int main()
@@ -69,9 +65,10 @@ int main()
 
     glViewport(0, 0, width, height);
 
-    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
     GLchar infoLog[512];
     GLint success;
+
+    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
 
     std::string vertShaderStr = getShaderSourceFromFile("vertex.glsl");
     const GLchar *vertShaderSrc = vertShaderStr.c_str();
@@ -84,7 +81,7 @@ int main()
     if (success == 0)
     {
         glGetShaderInfoLog(vertexShader, 512, nullptr, infoLog);
-        std::cout << "[Compile Shader]: Error: " << infoLog << std::endl;
+        std::cout << "[Vert shader compilation]: Error: " << infoLog << std::endl;
     }
 
     GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
@@ -100,7 +97,7 @@ int main()
     if (!success)
     {
         glGetShaderInfoLog(fragmentShader, 512, nullptr, infoLog);
-        std::cout << "[Compile Shader]: Error: " << infoLog << std::endl;
+        std::cout << "[Frag shader compilation]: Error: " << infoLog << std::endl;
     }
 
     GLuint shaderProgram = glCreateProgram();
@@ -139,13 +136,10 @@ int main()
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), static_cast<GLvoid*>(0));
     glEnableVertexAttribArray(0);
 
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
     while(!glfwWindowShouldClose(mainWindow))
     {
-        glfwPollEvents();
-
         glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
@@ -154,6 +148,7 @@ int main()
         glDrawArrays(GL_TRIANGLES, 0, 3);
         glBindVertexArray(0);
 
+        glfwPollEvents();
         glfwSwapBuffers(mainWindow);
     }
 
