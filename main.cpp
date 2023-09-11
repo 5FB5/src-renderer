@@ -3,8 +3,6 @@
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-#include <sstream>
-#include <fstream>
 #include <iostream>
 #include <math.h>
 
@@ -21,18 +19,6 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode
         glfwSetWindowShouldClose(window, GL_TRUE);
 }
 
-std::string getShaderSourceFromFile(std::string filename)
-{
-    std::stringstream buffer;
-    std::ifstream file(filename, std::ios::binary);
-
-    buffer << file.rdbuf();
-
-    file.close();
-
-    return buffer.str();
-}
-
 int main()
 {
     glfwSetErrorCallback(glfwError);
@@ -40,7 +26,7 @@ int main()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+    glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
 
     GLFWwindow *mainWindow = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "src_renderer", nullptr, nullptr);
 
@@ -63,10 +49,6 @@ int main()
     }
 
     int width, height;
-
-    glfwGetFramebufferSize(mainWindow, &width, &height);
-
-    glViewport(0, 0, width, height);
 
     Shader shader1("vertex.glsl", "fragment.glsl");
     Shader shader2("vertex.glsl", "fragment2.glsl");
@@ -118,10 +100,16 @@ int main()
 
     while(!glfwWindowShouldClose(mainWindow))
     {
+        glfwGetFramebufferSize(mainWindow, &width, &height);
+        glViewport(0, 0, width, height);
+
         glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
         shader1.use();
+
+        GLint posOffsetLocation = glGetUniformLocation(shader1.program, "posOffset");
+        glUniform1f(posOffsetLocation, 0.5f);
 
         glBindVertexArray(vao1);
         glDrawArrays(GL_TRIANGLES, 0, 3);
