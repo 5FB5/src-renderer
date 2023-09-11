@@ -6,6 +6,7 @@
 #include <sstream>
 #include <fstream>
 #include <iostream>
+#include <math.h>
 
 static void glfwError(int id, const char* desc)
 {
@@ -193,7 +194,12 @@ int main()
         glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
+        GLfloat _time = glfwGetTime();
+        GLfloat redV = std::abs((std::sin(_time * 3)));
+        GLint vertColorLocation = glGetUniformLocation(shaderProgram, "vertColor");
+
         glUseProgram(shaderProgram);
+        glUniform4f(vertColorLocation, redV, 0.0, 0.0, 1.0);
         glBindVertexArray(vao1);
         glDrawArrays(GL_TRIANGLES, 0, 6);
         glBindVertexArray(0);
