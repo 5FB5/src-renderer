@@ -6,6 +6,7 @@
 #include <SOIL/SOIL.h>
 #include <iostream>
 #include <math.h>
+#include <algorithm>
 
 #include "shader.h"
 #include "glm.hpp"
@@ -174,8 +175,13 @@ int main()
         // Transformation matrix init
         glm::mat4x4 transMat(1.0f);
 
-        float scaleV = std::abs(std::sin(glfwGetTime() * 2.0f));
-        transMat = glm::scale(transMat, glm::vec3(scaleV, scaleV, 1.0f));
+        float transformX = std::abs(std::sin(glfwGetTime() * 2.0f)) * 0.2f;
+        float scaleV = std::abs(std::sin(glfwGetTime() * 2.0f + 0.5f));
+
+        float clampedScale = std::clamp(scaleV, 0.7f, 1.0f);
+
+        transMat = glm::translate(transMat, glm::vec3(transformX, 0.0f, 0.0f));
+        transMat = glm::scale(transMat, glm::vec3(clampedScale, clampedScale, 1.0f));
 
         // Transformation matrix init
         glm::mat4x4 transMat2(1.0f);
