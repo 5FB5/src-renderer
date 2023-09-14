@@ -74,15 +74,47 @@ int main()
     };
 
     GLfloat vertices3[] = {
-            0.4f, 0.4f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,// Top Right
-            0.4f, -0.4f, 0.0f, 0.f, 1.0f, 0.0f, 1.0f, 0.0f,// Bottom Right
-            -0.3f, -0.4f, 0.0f,0.0f, 0.0f, 1.0f, 0.0f, 0.0f,// Bottom Left
-            -0.3f, 0.4f, 0.0f, 0.0f, 0.0f ,0.0f, 0.0f, 1.0f// Top Left
-    };
+            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+            0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+            0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+            0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
 
-    GLuint indices[] = {
-            0, 1, 3,
-            1, 2, 3
+            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+            0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+            0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+            0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+            -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+            -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+            -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+            -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+            0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+            0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+            0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+            0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+            0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+            0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+            0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+            0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+            0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+            0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+            0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+            0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+            -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
     };
 
     int texW, texH;
@@ -91,11 +123,10 @@ int main()
     int tex2W, tex2H;
     unsigned char *image2 = SOIL_load_image("resources/test2.jpg", &tex2W,&tex2H, 0, SOIL_LOAD_RGB);
 
-    GLuint VAOs[3], VBOs[3], ibo, texture, texture2;
+    GLuint VAOs[3], VBOs[3], texture, texture2;
 
     glGenVertexArrays(3, VAOs);
     glGenBuffers(3, VBOs);
-    glGenBuffers(1, &ibo);
     glGenTextures(1, &texture);
     glGenTextures(1, &texture2);
 
@@ -127,9 +158,6 @@ int main()
     glBindBuffer(GL_ARRAY_BUFFER, VBOs[2]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices3), vertices3, GL_STATIC_DRAW);
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
     // Generate textures
     glBindTexture(GL_TEXTURE_2D, texture);
 
@@ -157,18 +185,18 @@ int main()
 
     glBindTexture(GL_TEXTURE_2D, 0);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), static_cast<GLvoid*>(0));
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), reinterpret_cast<GLvoid*>(3 * sizeof(GLfloat)));
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), reinterpret_cast<GLvoid*>(6 * sizeof(GLfloat)));
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), static_cast<GLvoid*>(0));
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), reinterpret_cast<GLvoid*>(3 * sizeof(GLfloat)));
 
     glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(1);
     glEnableVertexAttribArray(2);
 
     glBindVertexArray(0);
 
     SOIL_free_image_data(image);
     SOIL_free_image_data(image2);
+
+    glEnable(GL_DEPTH_TEST);
 
     while(!glfwWindowShouldClose(mainWindow))
     {
@@ -188,16 +216,24 @@ int main()
         transMat2 = glm::rotate(transMat2, static_cast<GLfloat>(glfwGetTime()) * 2.0f, glm::vec3(1.0f, 1.0f, 1.0f));
         transMat2 = glm::scale(transMat2, glm::vec3(1.0f, 1.0f, 1.0f));
 
-        // Transformation matrix init
-        glm::mat4x4 transMat3(1.0f);
-        transMat3 = glm::rotate(transMat3, static_cast<GLfloat>(glfwGetTime()) * 5.0f, glm::vec3(1.0f, 1.0f, 1.0f));
-        transMat3 = glm::scale(transMat3, glm::vec3(1.0f, 1.0f, 1.0f));
-
         glfwGetFramebufferSize(mainWindow, &width, &height);
         glViewport(0, 0, width, height);
 
+        // Model, view, projection matrix init
+        glm::mat4x4 matModel(1.0f);
+        matModel = glm::rotate(matModel, static_cast<GLfloat>(glfwGetTime()) * 2.0f, glm::vec3(0.5f, 1.0f, 0.0f));
+
+        glm::mat4x4 matView(1.0f);
+        matView = glm::translate(matView, glm::vec3(0.0f, 0.0f, -3.0f));
+
+        glm::mat4x4 matProjection(1.0f);
+
+        float aspect = static_cast<GLfloat>(width) / static_cast<GLfloat>(height);
+
+        matProjection = glm::perspective(glm::radians(50.0f), aspect, 0.1f, 100.f);
+
         glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         shader1.use();
 
@@ -225,8 +261,13 @@ int main()
 
         shader3.use();
 
-        GLuint transformLocation3 = glGetUniformLocation(shader3.program, "transform");
-        glUniformMatrix4fv(transformLocation3, 1, GL_FALSE, glm::value_ptr(transMat3));
+        GLuint matModelLocation = glGetUniformLocation(shader3.program, "matModel");
+        GLuint matViewLocation = glGetUniformLocation(shader3.program, "matView");
+        GLuint matProjLocation = glGetUniformLocation(shader3.program, "matProj");
+
+        glUniformMatrix4fv(matModelLocation, 1, GL_FALSE, glm::value_ptr(matModel));
+        glUniformMatrix4fv(matViewLocation, 1, GL_FALSE, glm::value_ptr(matView));
+        glUniformMatrix4fv(matProjLocation, 1, GL_FALSE, glm::value_ptr(matProjection));
 
         GLfloat texMixValue = std::abs((sin(timeValue * 3)));
         GLint mixValueLocation = glGetUniformLocation(shader3.program, "mixValue");
@@ -242,11 +283,7 @@ int main()
 
         glBindVertexArray(VAOs[2]);
 
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
-        glBindVertexArray(0);
-
+        glDrawArrays(GL_TRIANGLES, 0, 36);
         glfwPollEvents();
         glfwSwapBuffers(mainWindow);
     }
@@ -255,7 +292,6 @@ int main()
 
     glDeleteVertexArrays(3, VAOs);
     glDeleteBuffers(3, VBOs);
-    glDeleteBuffers(1, &ibo);
     glfwTerminate();
 
     return 0;
