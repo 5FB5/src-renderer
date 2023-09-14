@@ -253,6 +253,9 @@ int main()
 
     std::cout << "[src_renderer]: Closing window..." << std::endl;
 
+    glDeleteVertexArrays(3, VAOs);
+    glDeleteBuffers(3, VBOs);
+    glDeleteBuffers(1, &ibo);
     glfwTerminate();
 
     return 0;
