@@ -169,10 +169,14 @@ int main()
     SOIL_free_image_data(image);
     SOIL_free_image_data(image2);
 
-
-
     while(!glfwWindowShouldClose(mainWindow))
     {
+        // Transformation matrix init
+        glm::mat4x4 transMat(1.0f);
+        transMat = glm::rotate(transMat, static_cast<GLfloat>(glfwGetTime()), glm::vec3(1.0f, 1.0f, 0.0f));
+        transMat = glm::scale(transMat, glm::vec3(1.0f, 1.0f, 1.0f));
+
+        glfwGetFramebufferSize(mainWindow, &width, &height);
         glViewport(0, 0, width, height);
 
         glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
@@ -180,11 +184,17 @@ int main()
 
         shader1.use();
 
+        GLuint transformLocation1 = glGetUniformLocation(shader1.program, "transform");
+        glUniformMatrix4fv(transformLocation1, 1, GL_FALSE, glm::value_ptr(transMat));
+
         glBindVertexArray(VAOs[0]);
         glDrawArrays(GL_TRIANGLES, 0, 3);
         glBindVertexArray(0);
 
         shader2.use();
+
+        GLuint transformLocation2 = glGetUniformLocation(shader2.program, "transform");
+        glUniformMatrix4fv(transformLocation2, 1, GL_FALSE, glm::value_ptr(transMat));
 
         GLfloat timeValue = glfwGetTime();
         GLfloat redV = std::abs((sin(timeValue * 2)));
@@ -198,16 +208,8 @@ int main()
 
         shader3.use();
 
-        // Transformation matrix init
-        glm::mat4x4 transMat(1.0f);
-        transMat = glm::rotate(transMat, static_cast<GLfloat>(glfwGetTime()), glm::vec3(1.0f, 1.0f, 0.0f));
-        transMat = glm::scale(transMat, glm::vec3(1.0f, 1.0f, 1.0f));
-//        transMat = glm::translate(transMat, glm::vec3(0.2f, -.3f, 0.0f));
-
-        glfwGetFramebufferSize(mainWindow, &width, &height);
-
-        GLuint transformLocation = glGetUniformLocation(shader3.program, "transform");
-        glUniformMatrix4fv(transformLocation, 1, GL_FALSE, glm::value_ptr(transMat));
+        GLuint transformLocation3 = glGetUniformLocation(shader3.program, "transform");
+        glUniformMatrix4fv(transformLocation3, 1, GL_FALSE, glm::value_ptr(transMat));
 
         GLfloat texMixValue = std::abs((sin(timeValue * 3)));
         GLint mixValueLocation = glGetUniformLocation(shader3.program, "mixValue");
