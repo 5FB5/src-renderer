@@ -54,9 +54,9 @@ int main()
 
     int width, height;
 
-    Shader shader1("vertex.glsl", "fragment.glsl");
-    Shader shader2("vertex.glsl", "fragment2.glsl");
-    Shader shader3("vertex.glsl", "fragment3.glsl");
+    Shader shader1("shaders/vertex.glsl", "shaders/fragment.glsl");
+    Shader shader2("shaders/vertex.glsl", "shaders/fragment2.glsl");
+    Shader shader3("shaders/vertex.glsl", "shaders/fragment3.glsl");
 
     GLfloat vertices1[] = {
             -0.8, -0.5, 0.0, 1.0, 0.0, 0.0,
@@ -84,10 +84,10 @@ int main()
     };
 
     int texW, texH;
-    unsigned char *image = SOIL_load_image("test.jpg", &texW, &texH, 0, SOIL_LOAD_RGB);
+    unsigned char *image = SOIL_load_image("resources/test.jpg", &texW, &texH, 0, SOIL_LOAD_RGB);
 
     int tex2W, tex2H;
-    unsigned char *image2 = SOIL_load_image("test2.jpg", &tex2W,&tex2H, 0, SOIL_LOAD_RGB);
+    unsigned char *image2 = SOIL_load_image("resources/test2.jpg", &tex2W,&tex2H, 0, SOIL_LOAD_RGB);
 
     GLuint VAOs[3], VBOs[3], ibo, texture, texture2;
 
@@ -130,18 +130,27 @@ int main()
 
     // Generate textures
     glBindTexture(GL_TEXTURE_2D, texture);
+
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texW, texH, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     // Set texture filtering
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);  // NOTE the GL_NEAREST Here!
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);  // NOTE the GL_NEAREST Here!
+
     glGenerateMipmap(GL_TEXTURE_2D);
 
     glBindTexture(GL_TEXTURE_2D, 0);
 
     glBindTexture(GL_TEXTURE_2D, texture2);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tex2W, tex2H, 0, GL_RGB, GL_UNSIGNED_BYTE, image2);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    // Set texture filtering
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);  // NOTE the GL_NEAREST Here!
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);  // NOTE the GL_NEAREST Here!
+
     glGenerateMipmap(GL_TEXTURE_2D);
 
     glBindTexture(GL_TEXTURE_2D, 0);
