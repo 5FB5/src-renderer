@@ -173,8 +173,19 @@ int main()
     {
         // Transformation matrix init
         glm::mat4x4 transMat(1.0f);
-        transMat = glm::rotate(transMat, static_cast<GLfloat>(glfwGetTime()), glm::vec3(1.0f, 1.0f, 0.0f));
-        transMat = glm::scale(transMat, glm::vec3(1.0f, 1.0f, 1.0f));
+
+        float scaleV = std::abs(std::sin(glfwGetTime() * 2.0f));
+        transMat = glm::scale(transMat, glm::vec3(scaleV, scaleV, 1.0f));
+
+        // Transformation matrix init
+        glm::mat4x4 transMat2(1.0f);
+        transMat2 = glm::rotate(transMat2, static_cast<GLfloat>(glfwGetTime()) * 2.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+        transMat2 = glm::scale(transMat2, glm::vec3(1.0f, 1.0f, 1.0f));
+
+        // Transformation matrix init
+        glm::mat4x4 transMat3(1.0f);
+        transMat3 = glm::rotate(transMat3, static_cast<GLfloat>(glfwGetTime()) * 5.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+        transMat3 = glm::scale(transMat3, glm::vec3(1.0f, 1.0f, 1.0f));
 
         glfwGetFramebufferSize(mainWindow, &width, &height);
         glViewport(0, 0, width, height);
@@ -194,7 +205,7 @@ int main()
         shader2.use();
 
         GLuint transformLocation2 = glGetUniformLocation(shader2.program, "transform");
-        glUniformMatrix4fv(transformLocation2, 1, GL_FALSE, glm::value_ptr(transMat));
+        glUniformMatrix4fv(transformLocation2, 1, GL_FALSE, glm::value_ptr(transMat2));
 
         GLfloat timeValue = glfwGetTime();
         GLfloat redV = std::abs((sin(timeValue * 2)));
@@ -209,7 +220,7 @@ int main()
         shader3.use();
 
         GLuint transformLocation3 = glGetUniformLocation(shader3.program, "transform");
-        glUniformMatrix4fv(transformLocation3, 1, GL_FALSE, glm::value_ptr(transMat));
+        glUniformMatrix4fv(transformLocation3, 1, GL_FALSE, glm::value_ptr(transMat3));
 
         GLfloat texMixValue = std::abs((sin(timeValue * 3)));
         GLint mixValueLocation = glGetUniformLocation(shader3.program, "mixValue");
