@@ -1,0 +1,6 @@
+[submodule "glm"]
+	path = glm
+	url = ../../g-truc/glm
+[submodule "includes/glm"]
+	path = includes/glm
+	url = https://github.com/g-truc/glm

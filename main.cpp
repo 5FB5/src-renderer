@@ -8,6 +8,9 @@
 #include <math.h>
 
 #include "shader.h"
+#include "glm.hpp"
+#include "gtc/matrix_transform.hpp"
+#include "gtc/type_ptr.hpp"
 
 static void glfwError(int id, const char* desc)
 {
@@ -20,12 +23,24 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode
         glfwSetWindowShouldClose(window, GL_TRUE);
 }
 
+void mathTest()
+{
+    glm::vec4 vector(1.0f, 0.0f, 0.0f, 1.0f);
+    std::cout << vector.x << " " << vector.y << " " << vector.z << std::endl;
+
+    glm::mat4x4 transMat(1.0f);
+
+    transMat = glm::translate(transMat, glm::vec3(1.0f, 1.0f, 0.0f));
+    vector = transMat * vector;
+
+    std::cout << vector.x << " " << vector.y << " " << vector.z << std::endl;
+}
+
 int main()
 {
     if (!glfwInit())
-    {
         std::cout << "[GLFW Init]: Can't init GLFW! Check library including" << std::endl;
-    }
+
     glfwSetErrorCallback(glfwError);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -52,6 +67,8 @@ int main()
         return -1;
     }
 
+    mathTest();
+
     int width, height;
 
     Shader shader1("shaders/vertex.glsl", "shaders/fragment.glsl");
@@ -69,7 +86,6 @@ int main()
             0.5, 0.5, 0.0,
             0.8, -0.5, 0.0
     };
-
 
     GLfloat vertices3[] = {
             0.4f, 0.4f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,// Top Right

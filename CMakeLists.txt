@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.25)
 project(src_renderer)
 
 include_directories(includes)
+include_directories(includes/glm/glm)
 include_directories(includes/shader)
 
 include_directories(shaders)
