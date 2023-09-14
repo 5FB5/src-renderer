@@ -23,19 +23,6 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode
         glfwSetWindowShouldClose(window, GL_TRUE);
 }
 
-void mathTest()
-{
-    glm::vec4 vector(1.0f, 0.0f, 0.0f, 1.0f);
-    std::cout << vector.x << " " << vector.y << " " << vector.z << std::endl;
-
-    glm::mat4x4 transMat(1.0f);
-
-    transMat = glm::translate(transMat, glm::vec3(1.0f, 1.0f, 0.0f));
-    vector = transMat * vector;
-
-    std::cout << vector.x << " " << vector.y << " " << vector.z << std::endl;
-}
-
 int main()
 {
     if (!glfwInit())
@@ -66,8 +53,6 @@ int main()
         std::cout << "[GLEW Error]: Failed to init GLEW" << std::endl;
         return -1;
     }
-
-    mathTest();
 
     int width, height;
 
@@ -184,9 +169,10 @@ int main()
     SOIL_free_image_data(image);
     SOIL_free_image_data(image2);
 
+
+
     while(!glfwWindowShouldClose(mainWindow))
     {
-        glfwGetFramebufferSize(mainWindow, &width, &height);
         glViewport(0, 0, width, height);
 
         glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
@@ -211,6 +197,17 @@ int main()
         glBindVertexArray(0);
 
         shader3.use();
+
+        // Transformation matrix init
+        glm::mat4x4 transMat(1.0f);
+        transMat = glm::rotate(transMat, static_cast<GLfloat>(glfwGetTime()), glm::vec3(1.0f, 1.0f, 0.0f));
+        transMat = glm::scale(transMat, glm::vec3(1.0f, 1.0f, 1.0f));
+//        transMat = glm::translate(transMat, glm::vec3(0.2f, -.3f, 0.0f));
+
+        glfwGetFramebufferSize(mainWindow, &width, &height);
+
+        GLuint transformLocation = glGetUniformLocation(shader3.program, "transform");
+        glUniformMatrix4fv(transformLocation, 1, GL_FALSE, glm::value_ptr(transMat));
 
         GLfloat texMixValue = std::abs((sin(timeValue * 3)));
         GLint mixValueLocation = glGetUniformLocation(shader3.program, "mixValue");
