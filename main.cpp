@@ -102,6 +102,18 @@ int main()
             -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
     };
 
+    glm::vec3 cubePositions[] = {
+            glm::vec3( 2.0f,  5.0f, -15.0f),
+            glm::vec3(-1.5f, -2.2f, -2.5f),
+            glm::vec3(-3.8f, -2.0f, -12.3f),
+            glm::vec3( 2.4f, -0.4f, -3.5f),
+            glm::vec3(-1.7f,  3.0f, -7.5f),
+            glm::vec3( 1.3f, -2.0f, -2.5f),
+            glm::vec3( 1.5f,  2.0f, -2.5f),
+            glm::vec3( 1.5f,  0.2f, -1.5f),
+            glm::vec3(-1.3f,  1.0f, -1.5f)
+    };
+
     int texW, texH;
     unsigned char *image = SOIL_load_image("resources/test.jpg", &texW, &texH, 0, SOIL_LOAD_RGB);
 
@@ -204,6 +216,22 @@ int main()
         glBindVertexArray(VAOs[2]);
 
         glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        for (int i = 0; i < 9; i++)
+        {
+            glm::mat4x4 _matModel(1.0f);
+            _matModel = glm::translate(_matModel, cubePositions[i]);
+
+            GLfloat angle = 20.0f * i;
+
+            _matModel = glm::rotate(_matModel, angle, glm::vec3(1.0f, 0.3f, 0.5f));
+
+            glUniformMatrix4fv(matModelLocation, 1, GL_FALSE, glm::value_ptr(_matModel));
+
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
+        glBindVertexArray(0);
+
         glfwPollEvents();
         glfwSwapBuffers(mainWindow);
     }
