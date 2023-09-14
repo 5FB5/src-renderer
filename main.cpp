@@ -6,7 +6,6 @@
 #include <SOIL/SOIL.h>
 #include <iostream>
 #include <math.h>
-#include <algorithm>
 
 #include "shader.h"
 #include "glm.hpp"
@@ -57,21 +56,7 @@ int main()
 
     int width, height;
 
-    Shader shader1("shaders/vertex.glsl", "shaders/fragment.glsl");
-    Shader shader2("shaders/vertex.glsl", "shaders/fragment2.glsl");
     Shader shader3("shaders/vertex.glsl", "shaders/fragment3.glsl");
-
-    GLfloat vertices1[] = {
-            -0.8, -0.5, 0.0, 1.0, 0.0, 0.0,
-            -0.5, 0.3, 0.0, 0.0, 1.0, 0.0,
-            -0.2, -0.5, 0.0, 0.0, 0.0, 1.0
-    };
-
-    GLfloat vertices2[] = {
-            0.2, -0.5, 0.0,
-            0.5, 0.5, 0.0,
-            0.8, -0.5, 0.0
-    };
 
     GLfloat vertices3[] = {
             -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
@@ -130,33 +115,16 @@ int main()
     glGenTextures(1, &texture);
     glGenTextures(1, &texture2);
 
-    // First triangle
-    glBindVertexArray(VAOs[0]);
-    glBindBuffer(GL_ARRAY_BUFFER, VBOs[0]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices1), vertices1, GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), static_cast<GLvoid*>(0));
-    glEnableVertexAttribArray(0);
-
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), reinterpret_cast<GLvoid*>(3 * sizeof(GLfloat)));
-    glEnableVertexAttribArray(1);
-
-    glBindVertexArray(0);
-
-    // Second triangle
-    glBindVertexArray(VAOs[1]);
-    glBindBuffer(GL_ARRAY_BUFFER, VBOs[1]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices2), vertices2, GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), static_cast<GLvoid*>(0));
-    glEnableVertexAttribArray(0);
-
-    glBindVertexArray(0);
-
     // Rectangle
     glBindVertexArray(VAOs[2]);
     glBindBuffer(GL_ARRAY_BUFFER, VBOs[2]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices3), vertices3, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), static_cast<GLvoid*>(0));
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), reinterpret_cast<GLvoid*>(3 * sizeof(GLfloat)));
+
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(2);
 
     // Generate textures
     glBindTexture(GL_TEXTURE_2D, texture);
@@ -182,14 +150,7 @@ int main()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);  // NOTE the GL_NEAREST Here!
 
     glGenerateMipmap(GL_TEXTURE_2D);
-
     glBindTexture(GL_TEXTURE_2D, 0);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), static_cast<GLvoid*>(0));
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), reinterpret_cast<GLvoid*>(3 * sizeof(GLfloat)));
-
-    glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(2);
 
     glBindVertexArray(0);
 
@@ -200,22 +161,6 @@ int main()
 
     while(!glfwWindowShouldClose(mainWindow))
     {
-        // Transformation matrix init
-        glm::mat4x4 transMat(1.0f);
-
-        float transformX = std::abs(std::sin(glfwGetTime() * 2.0f)) * 0.2f;
-        float scaleV = std::abs(std::sin(glfwGetTime() * 2.0f + 0.5f));
-
-        float clampedScale = std::clamp(scaleV, 0.7f, 1.0f);
-
-        transMat = glm::translate(transMat, glm::vec3(transformX, 0.0f, 0.0f));
-        transMat = glm::scale(transMat, glm::vec3(clampedScale, clampedScale, 1.0f));
-
-        // Transformation matrix init
-        glm::mat4x4 transMat2(1.0f);
-        transMat2 = glm::rotate(transMat2, static_cast<GLfloat>(glfwGetTime()) * 2.0f, glm::vec3(1.0f, 1.0f, 1.0f));
-        transMat2 = glm::scale(transMat2, glm::vec3(1.0f, 1.0f, 1.0f));
-
         glfwGetFramebufferSize(mainWindow, &width, &height);
         glViewport(0, 0, width, height);
 
@@ -229,35 +174,10 @@ int main()
         glm::mat4x4 matProjection(1.0f);
 
         float aspect = static_cast<GLfloat>(width) / static_cast<GLfloat>(height);
-
         matProjection = glm::perspective(glm::radians(50.0f), aspect, 0.1f, 100.f);
 
         glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        shader1.use();
-
-        GLuint transformLocation1 = glGetUniformLocation(shader1.program, "transform");
-        glUniformMatrix4fv(transformLocation1, 1, GL_FALSE, glm::value_ptr(transMat));
-
-        glBindVertexArray(VAOs[0]);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
-        glBindVertexArray(0);
-
-        shader2.use();
-
-        GLuint transformLocation2 = glGetUniformLocation(shader2.program, "transform");
-        glUniformMatrix4fv(transformLocation2, 1, GL_FALSE, glm::value_ptr(transMat2));
-
-        GLfloat timeValue = glfwGetTime();
-        GLfloat redV = std::abs((sin(timeValue * 2)));
-        GLfloat blueV = std::abs((sin(timeValue * 4)));
-        GLint vertexColorLocation = glGetUniformLocation(shader2.program, "animColor");
-        glUniform3f(vertexColorLocation, redV, 0.3f, blueV);
-
-        glBindVertexArray(VAOs[1]);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
-        glBindVertexArray(0);
 
         shader3.use();
 
@@ -269,7 +189,7 @@ int main()
         glUniformMatrix4fv(matViewLocation, 1, GL_FALSE, glm::value_ptr(matView));
         glUniformMatrix4fv(matProjLocation, 1, GL_FALSE, glm::value_ptr(matProjection));
 
-        GLfloat texMixValue = std::abs((sin(timeValue * 3)));
+        GLfloat texMixValue = std::abs((sin(glfwGetTime() * 3)));
         GLint mixValueLocation = glGetUniformLocation(shader3.program, "mixValue");
         glUniform1f(mixValueLocation, texMixValue);
 
