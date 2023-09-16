@@ -12,33 +12,43 @@
 #include "gtc/matrix_transform.hpp"
 #include "gtc/type_ptr.hpp"
 
+bool keys[1024];
+
 glm::vec3 cameraPos(0.0f, 0.0f, 3.0f);
 glm::vec3 cameraFront(0.0f, 0.0f, -1.0f);
 glm::vec3 cameraUp(0.0f, 1.0f, 0.0f);
+
+GLfloat deltaTime = 0.0f;
+GLfloat lastFrame = 0.0f;
 
 static void glfwError(int id, const char* desc)
 {
     std::cout << "[GLFW Error]: " << desc << std::endl;
 }
 
+void moveCamera()
+{
+    GLfloat cameraSpeed = 10.0f * deltaTime;
+
+    if(keys[GLFW_KEY_W])
+        cameraPos += cameraSpeed * cameraFront;
+    if(keys[GLFW_KEY_S])
+        cameraPos -= cameraSpeed * cameraFront;
+    if(keys[GLFW_KEY_A])
+        cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+    if(keys[GLFW_KEY_D])
+        cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+}
+
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
+    if (action == GLFW_PRESS)
+        keys[key] = true;
+    else if (action == GLFW_RELEASE)
+        keys[key] = false;
+
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GL_TRUE);
-
-    GLfloat cameraSpeed = 1.0f;
-
-    if (key == GLFW_KEY_W)
-        cameraPos += cameraSpeed * cameraFront;
-
-    if (key == GLFW_KEY_S)
-        cameraPos -= cameraSpeed * cameraFront;
-
-    if (key == GLFW_KEY_A)
-        cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp) * cameraSpeed);
-
-    if (key == GLFW_KEY_D)
-        cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp) * cameraSpeed);
 }
 
 int main()
@@ -196,6 +206,10 @@ int main()
         glfwGetFramebufferSize(mainWindow, &width, &height);
         glViewport(0, 0, width, height);
 
+        GLfloat currentFrame = glfwGetTime();
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
+
         glm::mat4x4 matView(1.0f);
         matView = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 
@@ -254,6 +268,8 @@ int main()
         }
 
         glfwPollEvents();
+        moveCamera();
+
         glfwSwapBuffers(mainWindow);
     }
 
