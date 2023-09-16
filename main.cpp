@@ -7,28 +7,22 @@
 #include <iostream>
 #include <math.h>
 
+#include "camera.h"
 #include "shader.h"
+
 #include "glm.hpp"
 #include "gtc/matrix_transform.hpp"
 #include "gtc/type_ptr.hpp"
 
-bool keys[1024];
+Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
-glm::vec3 cameraPos(0.0f, 0.0f, 3.0f);
-glm::vec3 cameraFront(0.0f, 0.0f, -1.0f);
-glm::vec3 cameraUp(0.0f, 1.0f, 0.0f);
-
-GLfloat cameraSpeed = 0.0f;
 GLfloat deltaTime = 0.0f;
 GLfloat lastFrame = 0.0f;
+GLfloat mouseLastX = WINDOW_WIDTH / 2, mouseLastY = WINDOW_HEIGHT / 2;
 
-GLfloat mouseLastX = WINDOW_WIDTH / 2;
-GLfloat mouseLastY = WINDOW_HEIGHT / 2;
-GLfloat yaw = -90.f;
-GLfloat pitch = 0.0f;
-
-bool firstMouse = true;
+bool keys[1024];
 bool isSprint = false;
+bool firstMouse = true;
 
 static void glfwError(int id, const char* desc)
 {
@@ -37,19 +31,19 @@ static void glfwError(int id, const char* desc)
 
 void moveCamera()
 {
-    cameraSpeed = 5.0f * deltaTime;
-
     if (isSprint)
-        cameraSpeed = 25.0f * deltaTime;
+        camera.movementSpeed = 15.0f;
+    else
+        camera.movementSpeed = 5.f;
 
-    if(keys[GLFW_KEY_W])
-        cameraPos += cameraSpeed * cameraFront;
-    if(keys[GLFW_KEY_S])
-        cameraPos -= cameraSpeed * cameraFront;
-    if(keys[GLFW_KEY_A])
-        cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
-    if(keys[GLFW_KEY_D])
-        cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+    if (keys[GLFW_KEY_W])
+        camera.processMovement(CameraMovement::FORWARD, deltaTime);
+    if (keys[GLFW_KEY_S])
+        camera.processMovement(CameraMovement::BACKWARD, deltaTime);
+    if (keys[GLFW_KEY_A])
+        camera.processMovement(CameraMovement::LEFT, deltaTime);
+    if (keys[GLFW_KEY_D])
+        camera.processMovement(CameraMovement::RIGHT, deltaTime);
 }
 
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode)
@@ -84,25 +78,7 @@ void mouseCallback(GLFWwindow* window, double xpos, double ypos)
     mouseLastX = xpos;
     mouseLastY = ypos;
 
-    GLfloat sensitivity = 0.05;
-    xoffset *= sensitivity;
-    yoffset *= sensitivity;
-
-    yaw += xoffset;
-    pitch += yoffset;
-
-    if(pitch > 89.0f)
-        pitch = 89.0f;
-    if(pitch < -89.0f)
-        pitch = -89.0f;
-
-    glm::vec3 front;
-    front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-    front.y = sin(glm::radians(pitch));
-    front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-    cameraFront = glm::normalize(front);
-
-    std::cout << cameraFront.x << cameraFront.y << cameraFront.z << std::endl;
+    camera.processMouseMovement(xoffset, yoffset);
 }
 
 int main()
@@ -138,7 +114,6 @@ int main()
         std::cout << "[GLEW Error]: Failed to init GLEW" << std::endl;
         return -1;
     }
-
 
     int width, height;
 
@@ -257,19 +232,17 @@ int main()
 
     glEnable(GL_DEPTH_TEST);
 
-    GLfloat radius = 15.f;
-
     while(!glfwWindowShouldClose(mainWindow))
     {
         glfwGetFramebufferSize(mainWindow, &width, &height);
         glViewport(0, 0, width, height);
 
-        GLfloat currentFrame = glfwGetTime();
+        GLfloat currentFrame = static_cast<GLfloat>(glfwGetTime());
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
         glm::mat4x4 matView(1.0f);
-        matView = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+        matView = camera.getViewMatrix();
 
         // Model, view, projection matrix init
         glm::mat4x4 matModel(1.0f);
