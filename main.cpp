@@ -178,7 +178,7 @@ int main()
 
         // Model, view, projection matrix init
         glm::mat4x4 matModel(1.0f);
-        matModel = glm::rotate(matModel, static_cast<GLfloat>(glfwGetTime()) * 2.0f, glm::vec3(0.5f, 1.0f, 0.0f));
+        matModel = glm::rotate(matModel, glm::radians(static_cast<GLfloat>(glfwGetTime()) * 100.0f), glm::vec3(0.5f, 1.0f, 0.0f));
 
         glm::mat4x4 matView(1.0f);
         matView = glm::translate(matView, glm::vec3(0.0f, 0.0f, -3.0f));
@@ -201,7 +201,7 @@ int main()
         glUniformMatrix4fv(matViewLocation, 1, GL_FALSE, glm::value_ptr(matView));
         glUniformMatrix4fv(matProjLocation, 1, GL_FALSE, glm::value_ptr(matProjection));
 
-        GLfloat texMixValue = std::abs((sin(glfwGetTime() * 3)));
+        GLfloat texMixValue = std::abs(sin(glfwGetTime()));
         GLint mixValueLocation = glGetUniformLocation(shader3.program, "mixValue");
         glUniform1f(mixValueLocation, texMixValue);
 
@@ -214,7 +214,6 @@ int main()
         glUniform1i(glGetUniformLocation(shader3.program, "secondTexture"), 1);
 
         glBindVertexArray(VAOs[2]);
-
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
         for (int i = 0; i < 9; i++)
@@ -224,13 +223,15 @@ int main()
 
             GLfloat angle = 20.0f * i;
 
-            _matModel = glm::rotate(_matModel, angle, glm::vec3(1.0f, 0.3f, 0.5f));
+            if (i % 3 == 0)
+                angle = static_cast<GLfloat>(glfwGetTime()) * 50.5f;
+
+            _matModel = glm::rotate(_matModel, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
 
             glUniformMatrix4fv(matModelLocation, 1, GL_FALSE, glm::value_ptr(_matModel));
 
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
-        glBindVertexArray(0);
 
         glfwPollEvents();
         glfwSwapBuffers(mainWindow);

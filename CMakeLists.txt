@@ -1,14 +1,14 @@
 cmake_minimum_required(VERSION 3.25)
 project(src_renderer)
 
-include_directories(includes)
-include_directories(includes/glm/glm)
-include_directories(includes/shader)
+include_directories(libs)
+include_directories(libs/glm/glm)
+include_directories(libs/shader)
 
 include_directories(shaders)
 include_directories(resources)
 
-add_library(shadersCpp includes/shader/shader.cpp)
+add_library(shadersCpp libs/shader/shader.cpp)
 
 set(CMAKE_CXX_STANDARD 17)
 set(SOURCES main.cpp)
