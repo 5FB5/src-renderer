@@ -12,6 +12,10 @@
 #include "gtc/matrix_transform.hpp"
 #include "gtc/type_ptr.hpp"
 
+glm::vec3 cameraPos(0.0f, 0.0f, 3.0f);
+glm::vec3 cameraFront(0.0f, 0.0f, -1.0f);
+glm::vec3 cameraUp(0.0f, 1.0f, 0.0f);
+
 static void glfwError(int id, const char* desc)
 {
     std::cout << "[GLFW Error]: " << desc << std::endl;
@@ -21,6 +25,20 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode
 {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GL_TRUE);
+
+    GLfloat cameraSpeed = 1.0f;
+
+    if (key == GLFW_KEY_W)
+        cameraPos += cameraSpeed * cameraFront;
+
+    if (key == GLFW_KEY_S)
+        cameraPos -= cameraSpeed * cameraFront;
+
+    if (key == GLFW_KEY_A)
+        cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp) * cameraSpeed);
+
+    if (key == GLFW_KEY_D)
+        cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp) * cameraSpeed);
 }
 
 int main()
@@ -171,17 +189,19 @@ int main()
 
     glEnable(GL_DEPTH_TEST);
 
+    GLfloat radius = 15.f;
+
     while(!glfwWindowShouldClose(mainWindow))
     {
         glfwGetFramebufferSize(mainWindow, &width, &height);
         glViewport(0, 0, width, height);
 
+        glm::mat4x4 matView(1.0f);
+        matView = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+
         // Model, view, projection matrix init
         glm::mat4x4 matModel(1.0f);
         matModel = glm::rotate(matModel, glm::radians(static_cast<GLfloat>(glfwGetTime()) * 100.0f), glm::vec3(0.5f, 1.0f, 0.0f));
-
-        glm::mat4x4 matView(1.0f);
-        matView = glm::translate(matView, glm::vec3(0.0f, 0.0f, -3.0f));
 
         glm::mat4x4 matProjection(1.0f);
 

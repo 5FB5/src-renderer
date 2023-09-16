@@ -13,7 +13,9 @@ add_library(shadersCpp libs/shader/shader.cpp)
 set(CMAKE_CXX_STANDARD 17)
 set(SOURCES main.cpp)
 
+find_package(glfw REQUIRED)
 find_package(OpenGL REQUIRED)
+find_package(GLEW REQUIRED)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
