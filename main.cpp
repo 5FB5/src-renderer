@@ -18,8 +18,17 @@ glm::vec3 cameraPos(0.0f, 0.0f, 3.0f);
 glm::vec3 cameraFront(0.0f, 0.0f, -1.0f);
 glm::vec3 cameraUp(0.0f, 1.0f, 0.0f);
 
+GLfloat cameraSpeed = 0.0f;
 GLfloat deltaTime = 0.0f;
 GLfloat lastFrame = 0.0f;
+
+GLfloat mouseLastX = WINDOW_WIDTH / 2;
+GLfloat mouseLastY = WINDOW_HEIGHT / 2;
+GLfloat yaw = -90.f;
+GLfloat pitch = 0.0f;
+
+bool firstMouse = true;
+bool isSprint = false;
 
 static void glfwError(int id, const char* desc)
 {
@@ -28,7 +37,10 @@ static void glfwError(int id, const char* desc)
 
 void moveCamera()
 {
-    GLfloat cameraSpeed = 10.0f * deltaTime;
+    cameraSpeed = 5.0f * deltaTime;
+
+    if (isSprint)
+        cameraSpeed = 25.0f * deltaTime;
 
     if(keys[GLFW_KEY_W])
         cameraPos += cameraSpeed * cameraFront;
@@ -47,8 +59,50 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode
     else if (action == GLFW_RELEASE)
         keys[key] = false;
 
+    if (key == GLFW_KEY_LEFT_SHIFT && action == GLFW_PRESS)
+        isSprint = true;
+    else if (key == GLFW_KEY_LEFT_SHIFT && action == GLFW_RELEASE)
+        isSprint = false;
+
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GL_TRUE);
+}
+
+void mouseCallback(GLFWwindow* window, double xpos, double ypos)
+{
+    if(firstMouse)
+    {
+        mouseLastX = xpos;
+        mouseLastY = ypos;
+
+        firstMouse = false;
+    }
+
+    GLfloat xoffset = xpos - mouseLastX;
+    GLfloat yoffset = mouseLastY - ypos;
+
+    mouseLastX = xpos;
+    mouseLastY = ypos;
+
+    GLfloat sensitivity = 0.05;
+    xoffset *= sensitivity;
+    yoffset *= sensitivity;
+
+    yaw += xoffset;
+    pitch += yoffset;
+
+    if(pitch > 89.0f)
+        pitch = 89.0f;
+    if(pitch < -89.0f)
+        pitch = -89.0f;
+
+    glm::vec3 front;
+    front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+    front.y = sin(glm::radians(pitch));
+    front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+    cameraFront = glm::normalize(front);
+
+    std::cout << cameraFront.x << cameraFront.y << cameraFront.z << std::endl;
 }
 
 int main()
@@ -72,7 +126,10 @@ int main()
     }
 
     glfwMakeContextCurrent(mainWindow);
+
+    glfwSetInputMode(mainWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetKeyCallback(mainWindow, keyCallback);
+    glfwSetCursorPosCallback(mainWindow, mouseCallback);
 
     glewExperimental = GL_TRUE;
 
@@ -81,6 +138,7 @@ int main()
         std::cout << "[GLEW Error]: Failed to init GLEW" << std::endl;
         return -1;
     }
+
 
     int width, height;
 
