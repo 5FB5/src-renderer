@@ -25,8 +25,6 @@ void Camera::updateCameraVectors()
     front = glm::normalize(_front);
     right = glm::normalize(glm::cross(front, worldUp));
     up = glm::normalize(glm::cross(right, front));
-
-    std::cout << front.x << front.y << front.z << std::endl;
 }
 
 glm::mat4x4 Camera::getViewMatrix()

@@ -32,7 +32,7 @@ static void glfwError(int id, const char* desc)
 void moveCamera()
 {
     if (isSprint)
-        camera.movementSpeed = 15.0f;
+       camera.movementSpeed = 30.0f;
     else
         camera.movementSpeed = 5.f;
 
@@ -48,18 +48,22 @@ void moveCamera()
 
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
-    if (action == GLFW_PRESS)
-        keys[key] = true;
-    else if (action == GLFW_RELEASE)
-        keys[key] = false;
-
-    if (key == GLFW_KEY_LEFT_SHIFT && action == GLFW_PRESS)
-        isSprint = true;
-    else if (key == GLFW_KEY_LEFT_SHIFT && action == GLFW_RELEASE)
-        isSprint = false;
-
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GL_TRUE);
+
+    if (key >= 0 && key < 1024)
+    {
+        if (action == GLFW_PRESS)
+            keys[key] = true;
+        else if (action == GLFW_RELEASE)
+            keys[key] = false;
+    }
+
+    if (keys[GLFW_KEY_LEFT_SHIFT])
+        isSprint = true;
+    else if (!keys[GLFW_KEY_LEFT_SHIFT])
+        isSprint = false;
+
 }
 
 void mouseCallback(GLFWwindow* window, double xpos, double ypos)
@@ -103,9 +107,9 @@ int main()
 
     glfwMakeContextCurrent(mainWindow);
 
-    glfwSetInputMode(mainWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetKeyCallback(mainWindow, keyCallback);
     glfwSetCursorPosCallback(mainWindow, mouseCallback);
+    glfwSetInputMode(mainWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     glewExperimental = GL_TRUE;
 
@@ -117,120 +121,90 @@ int main()
 
     int width, height;
 
-    Shader shader3("shaders/vertex.glsl", "shaders/fragment3.glsl");
+    Shader shaderColorBox("shaders/vertex.vert", "shaders/color.frag");
+    Shader shaderLightBox("shaders/vertexNoNormals.vert", "shaders/light.frag");
 
-    GLfloat vertices3[] = {
-            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-            0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-            0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-            0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+    float vertices[] = {
+            -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+            0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+            0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+            0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+            -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
 
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-            0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-            0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-            0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-            -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+            -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+            0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+            0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+            0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+            -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+            -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
 
-            -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-            -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-            -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+            -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+            -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+            -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+            -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+            -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+            -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
 
-            0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-            0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-            0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-            0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-            0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-            0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+            0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+            0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+            0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+            0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+            0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+            0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
 
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-            0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-            0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-            0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+            0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+            0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+            0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+            -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
 
-            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-            0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-            0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-            0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-            -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+            -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+            0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+            0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+            0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+            -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+            -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
     };
 
-    glm::vec3 cubePositions[] = {
-            glm::vec3( 2.0f,  5.0f, -15.0f),
-            glm::vec3(-1.5f, -2.2f, -2.5f),
-            glm::vec3(-3.8f, -2.0f, -12.3f),
-            glm::vec3( 2.4f, -0.4f, -3.5f),
-            glm::vec3(-1.7f,  3.0f, -7.5f),
-            glm::vec3( 1.3f, -2.0f, -2.5f),
-            glm::vec3( 1.5f,  2.0f, -2.5f),
-            glm::vec3( 1.5f,  0.2f, -1.5f),
-            glm::vec3(-1.3f,  1.0f, -1.5f)
-    };
-
-    int texW, texH;
-    unsigned char *image = SOIL_load_image("resources/test.jpg", &texW, &texH, 0, SOIL_LOAD_RGB);
-
-    int tex2W, tex2H;
-    unsigned char *image2 = SOIL_load_image("resources/test2.jpg", &tex2W,&tex2H, 0, SOIL_LOAD_RGB);
-
-    GLuint VAOs[3], VBOs[3], texture, texture2;
+    GLuint VAOs[3], VBOs[3];
 
     glGenVertexArrays(3, VAOs);
     glGenBuffers(3, VBOs);
-    glGenTextures(1, &texture);
-    glGenTextures(1, &texture2);
 
-    // Rectangle
-    glBindVertexArray(VAOs[2]);
-    glBindBuffer(GL_ARRAY_BUFFER, VBOs[2]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices3), vertices3, GL_STATIC_DRAW);
+    // light
+    glBindVertexArray(VAOs[0]);
+    glBindBuffer(GL_ARRAY_BUFFER, VBOs[0]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), static_cast<GLvoid*>(0));
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), reinterpret_cast<GLvoid*>(3 * sizeof(GLfloat)));
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), static_cast<GLvoid*>(0));
 
     glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(2);
-
-    // Generate textures
-    glBindTexture(GL_TEXTURE_2D, texture);
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texW, texH, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    // Set texture filtering
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);  // NOTE the GL_NEAREST Here!
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);  // NOTE the GL_NEAREST Here!
-
-    glGenerateMipmap(GL_TEXTURE_2D);
-
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    glBindTexture(GL_TEXTURE_2D, texture2);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tex2W, tex2H, 0, GL_RGB, GL_UNSIGNED_BYTE, image2);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    // Set texture filtering
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);  // NOTE the GL_NEAREST Here!
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);  // NOTE the GL_NEAREST Here!
-
-    glGenerateMipmap(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, 0);
 
     glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    SOIL_free_image_data(image);
-    SOIL_free_image_data(image2);
+    // box
+    glBindVertexArray(VAOs[1]);
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBOs[1]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), static_cast<GLvoid*>(0));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), reinterpret_cast<GLvoid*>(3 * sizeof(GLfloat)));
+
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+
+    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     glEnable(GL_DEPTH_TEST);
+
+    glm::vec3 lightPosition(2.0f, 1.5f, -3.0f);
+
+    float rotationRadius = 2.f;
 
     while(!glfwWindowShouldClose(mainWindow))
     {
@@ -246,57 +220,68 @@ int main()
 
         // Model, view, projection matrix init
         glm::mat4x4 matModel(1.0f);
-        matModel = glm::rotate(matModel, glm::radians(static_cast<GLfloat>(glfwGetTime()) * 100.0f), glm::vec3(0.5f, 1.0f, 0.0f));
-
         glm::mat4x4 matProjection(1.0f);
 
         float aspect = static_cast<GLfloat>(width) / static_cast<GLfloat>(height);
         matProjection = glm::perspective(glm::radians(50.0f), aspect, 0.1f, 100.f);
 
+        GLfloat lightPosX = std::sin(glfwGetTime()) * rotationRadius;
+        GLfloat lightPosZ = std::cos(glfwGetTime()) * rotationRadius;
+
         glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        shader3.use();
+        // Draw light
+        glBindVertexArray(VAOs[0]);
 
-        GLuint matModelLocation = glGetUniformLocation(shader3.program, "matModel");
-        GLuint matViewLocation = glGetUniformLocation(shader3.program, "matView");
-        GLuint matProjLocation = glGetUniformLocation(shader3.program, "matProj");
+        shaderLightBox.use();
+
+        GLuint _matModelLocation = glGetUniformLocation(shaderLightBox.program, "matModel");
+        GLuint _matViewLocation = glGetUniformLocation(shaderLightBox.program, "matView");
+        GLuint _matProjLocation = glGetUniformLocation(shaderLightBox.program, "matProj");
+
+        GLuint _lightColorLocation = glGetUniformLocation(shaderLightBox.program, "lightColor");
+        GLuint _objColorLocation = glGetUniformLocation(shaderLightBox.program, "objColor");
+
+        glUniform3f(_lightColorLocation, 1.0f, 1.0f, 1.0f);
+        glUniform3f(_objColorLocation, 1.0f, 0.5f, 0.31f);
+
+        glm::mat4x4 matBox(1.0f);
+        matBox = glm::translate(matBox, glm::vec3(lightPosX, lightPosition.y, lightPosZ));
+
+        glUniformMatrix4fv(_matModelLocation, 1, GL_FALSE, glm::value_ptr(matBox));
+        glUniformMatrix4fv(_matViewLocation, 1, GL_FALSE, glm::value_ptr(matView));
+        glUniformMatrix4fv(_matProjLocation, 1, GL_FALSE, glm::value_ptr(matProjection));
+
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        // Draw color box
+        glBindVertexArray(VAOs[1]);
+
+        shaderColorBox.use();
+
+        GLuint cameraPosLocation = glGetUniformLocation(shaderColorBox.program, "cameraPos");
+        GLuint lightPosLocation = glGetUniformLocation(shaderColorBox.program, "lightPos");
+
+        GLuint matModelLocation = glGetUniformLocation(shaderColorBox.program, "matModel");
+        GLuint matViewLocation = glGetUniformLocation(shaderColorBox.program, "matView");
+        GLuint matProjLocation = glGetUniformLocation(shaderColorBox.program, "matProj");
+
+        GLuint lightColorLocation = glGetUniformLocation(shaderColorBox.program, "lightColor");
+        GLuint objColorLocation = glGetUniformLocation(shaderColorBox.program, "objColor");
+
+        glUniform3f(cameraPosLocation, camera.position.x, camera.position.y, camera.position.z);
+        glUniform3f(lightPosLocation, lightPosX, lightPosition.y, lightPosZ);
+        glUniform3f(lightColorLocation, 1.0f, 1.0f, 1.0f);
+        glUniform3f(objColorLocation, 0.5f, 0.5f, 0.31f);
+
+        matModel = glm::scale(matModel, glm::vec3(2.0f, 2.0f, 2.0f));
 
         glUniformMatrix4fv(matModelLocation, 1, GL_FALSE, glm::value_ptr(matModel));
         glUniformMatrix4fv(matViewLocation, 1, GL_FALSE, glm::value_ptr(matView));
         glUniformMatrix4fv(matProjLocation, 1, GL_FALSE, glm::value_ptr(matProjection));
 
-        GLfloat texMixValue = std::abs(sin(glfwGetTime()));
-        GLint mixValueLocation = glGetUniformLocation(shader3.program, "mixValue");
-        glUniform1f(mixValueLocation, texMixValue);
-
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture);
-        glUniform1i(glGetUniformLocation(shader3.program, "baseTexture"), 0);
-
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texture2);
-        glUniform1i(glGetUniformLocation(shader3.program, "secondTexture"), 1);
-
-        glBindVertexArray(VAOs[2]);
         glDrawArrays(GL_TRIANGLES, 0, 36);
-
-        for (int i = 0; i < 9; i++)
-        {
-            glm::mat4x4 _matModel(1.0f);
-            _matModel = glm::translate(_matModel, cubePositions[i]);
-
-            GLfloat angle = 20.0f * i;
-
-            if (i % 3 == 0)
-                angle = static_cast<GLfloat>(glfwGetTime()) * 50.5f;
-
-            _matModel = glm::rotate(_matModel, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-
-            glUniformMatrix4fv(matModelLocation, 1, GL_FALSE, glm::value_ptr(_matModel));
-
-            glDrawArrays(GL_TRIANGLES, 0, 36);
-        }
 
         glfwPollEvents();
         moveCamera();

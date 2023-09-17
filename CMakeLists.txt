@@ -36,26 +36,27 @@ add_custom_command(
 add_custom_command(
         TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy
-        ${CMAKE_SOURCE_DIR}/shaders/vertex.glsl
-        ${CMAKE_CURRENT_BINARY_DIR}/shaders/vertex.glsl)
+        ${CMAKE_SOURCE_DIR}/shaders/vertex.vert
+        ${CMAKE_CURRENT_BINARY_DIR}/shaders/vertex.vert)
+
 
 add_custom_command(
         TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy
-        ${CMAKE_SOURCE_DIR}/shaders/fragment.glsl
-        ${CMAKE_CURRENT_BINARY_DIR}/shaders/fragment.glsl)
+        ${CMAKE_SOURCE_DIR}/shaders/vertexNoNormals.vert
+        ${CMAKE_CURRENT_BINARY_DIR}/shaders/vertexNoNormals.vert)
 
 add_custom_command(
         TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy
-        ${CMAKE_SOURCE_DIR}/shaders/fragment2.glsl
-        ${CMAKE_CURRENT_BINARY_DIR}/shaders/fragment2.glsl)
+        ${CMAKE_SOURCE_DIR}/shaders/color.frag
+        ${CMAKE_CURRENT_BINARY_DIR}/shaders/color.frag)
 
 add_custom_command(
         TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy
-        ${CMAKE_SOURCE_DIR}/shaders/fragment3.glsl
-        ${CMAKE_CURRENT_BINARY_DIR}/shaders/fragment3.glsl)
+        ${CMAKE_SOURCE_DIR}/shaders/light.frag
+        ${CMAKE_CURRENT_BINARY_DIR}/shaders/light.frag)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
 target_link_libraries(${PROJECT_NAME} PRIVATE GLEW)
