@@ -202,9 +202,7 @@ int main()
 
     glEnable(GL_DEPTH_TEST);
 
-    glm::vec3 lightPosition(2.0f, 1.5f, -3.0f);
-
-    float rotationRadius = 2.f;
+    float rotationRadius = 10.f;
 
     while(!glfwWindowShouldClose(mainWindow))
     {
@@ -226,15 +224,18 @@ int main()
         matProjection = glm::perspective(glm::radians(50.0f), aspect, 0.1f, 100.f);
 
         GLfloat lightPosX = std::sin(glfwGetTime()) * rotationRadius;
+        GLfloat lightPosY = 0.f;//std::cos(glfwGetTime()) * rotationRadius;
         GLfloat lightPosZ = std::cos(glfwGetTime()) * rotationRadius;
 
         glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        shaderLightBox.use();
+
+        glBindVertexArray(0);
+
         // Draw light
         glBindVertexArray(VAOs[0]);
-
-        shaderLightBox.use();
 
         GLuint _matModelLocation = glGetUniformLocation(shaderLightBox.program, "matModel");
         GLuint _matViewLocation = glGetUniformLocation(shaderLightBox.program, "matView");
@@ -247,7 +248,9 @@ int main()
         glUniform3f(_objColorLocation, 1.0f, 0.5f, 0.31f);
 
         glm::mat4x4 matBox(1.0f);
-        matBox = glm::translate(matBox, glm::vec3(lightPosX, lightPosition.y, lightPosZ));
+
+        matBox = glm::scale(matBox, glm::vec3(0.2f));
+        matBox = glm::translate(matBox, glm::vec3(lightPosX, lightPosY , lightPosZ));
 
         glUniformMatrix4fv(_matModelLocation, 1, GL_FALSE, glm::value_ptr(matBox));
         glUniformMatrix4fv(_matViewLocation, 1, GL_FALSE, glm::value_ptr(matView));
@@ -255,10 +258,13 @@ int main()
 
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
-        // Draw color box
+        shaderColorBox.use();
+
+        // Draw color boxes
         glBindVertexArray(VAOs[1]);
 
-        shaderColorBox.use();
+        glm::mat4 _matModel(1.0f);
+        _matModel = glm::translate(_matModel, glm::vec3(0.0f, 0.0f, 0.0f));
 
         GLuint cameraPosLocation = glGetUniformLocation(shaderColorBox.program, "cameraPos");
         GLuint lightPosLocation = glGetUniformLocation(shaderColorBox.program, "lightPos");
@@ -271,13 +277,11 @@ int main()
         GLuint objColorLocation = glGetUniformLocation(shaderColorBox.program, "objColor");
 
         glUniform3f(cameraPosLocation, camera.position.x, camera.position.y, camera.position.z);
-        glUniform3f(lightPosLocation, lightPosX, lightPosition.y, lightPosZ);
+        glUniform3f(lightPosLocation, lightPosX, lightPosY, lightPosZ);
         glUniform3f(lightColorLocation, 1.0f, 1.0f, 1.0f);
-        glUniform3f(objColorLocation, 0.5f, 0.5f, 0.31f);
+        glUniform3f(objColorLocation, 1.0f, .5f, 1.0f);
 
-        matModel = glm::scale(matModel, glm::vec3(2.0f, 2.0f, 2.0f));
-
-        glUniformMatrix4fv(matModelLocation, 1, GL_FALSE, glm::value_ptr(matModel));
+        glUniformMatrix4fv(matModelLocation, 1, GL_FALSE, glm::value_ptr(_matModel));
         glUniformMatrix4fv(matViewLocation, 1, GL_FALSE, glm::value_ptr(matView));
         glUniformMatrix4fv(matProjLocation, 1, GL_FALSE, glm::value_ptr(matProjection));
 

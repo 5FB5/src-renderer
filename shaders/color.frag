@@ -2,11 +2,11 @@
 
 in vec3 Normal;
 in vec3 FragPos;
+in vec3 LightPos;
 
 out vec4 color;
 
 uniform vec3 cameraPos;
-uniform vec3 lightPos;
 uniform vec3 lightColor;
 uniform vec3 objColor;
 
@@ -20,7 +20,7 @@ void main()
     vec3 ambient = ambientCoef * lightColor;
 
     vec3 norm = normalize(Normal);
-    vec3 lightDir = normalize(lightPos - FragPos);
+    vec3 lightDir = normalize(LightPos - FragPos);
 
     vec3 reflectDir = reflect(-lightDir, norm);
     float specComponent = pow(max(dot(viewDir, reflectDir), 0.0f), 32);
