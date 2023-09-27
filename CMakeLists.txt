@@ -1,25 +1,26 @@
 cmake_minimum_required(VERSION 3.25)
 project(src_renderer)
 
-include_directories(libs)
 include_directories(libs/glm/glm)
 include_directories(libs/shader)
 include_directories(libs/camera)
-
-include_directories(shaders)
-include_directories(resources)
-
-add_library(shadersCpp libs/shader/shader.cpp)
-add_library(cameraCpp libs/camera/camera.cpp)
+include_directories(libs/valve)
 
 set(CMAKE_CXX_STANDARD 17)
-set(SOURCES main.cpp)
+
+set(HEADERS libs/valve/bsp.h
+            libs/shader/shader.h
+            libs/camera/camera.h)
+set(SOURCES main.cpp
+            libs/shader/shader.cpp
+            libs/camera/camera.cpp
+            libs/valve/bsp.cpp)
 
 find_package(glfw REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 
-add_executable(${PROJECT_NAME} ${SOURCES})
+add_executable(${PROJECT_NAME} ${HEADERS} ${SOURCES})
 
 add_custom_command(
         TARGET ${PROJECT_NAME} POST_BUILD
@@ -38,7 +39,6 @@ add_custom_command(
         COMMAND ${CMAKE_COMMAND} -E copy
         ${CMAKE_SOURCE_DIR}/shaders/vertex.vert
         ${CMAKE_CURRENT_BINARY_DIR}/shaders/vertex.vert)
-
 
 add_custom_command(
         TARGET ${PROJECT_NAME} POST_BUILD
@@ -62,5 +62,3 @@ target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
 target_link_libraries(${PROJECT_NAME} PRIVATE GLEW)
 target_link_libraries(${PROJECT_NAME} PRIVATE SOIL)
 target_link_libraries(${PROJECT_NAME} PRIVATE OpenGL::GL)
-target_link_libraries(${PROJECT_NAME} PRIVATE shadersCpp)
-target_link_libraries(${PROJECT_NAME} PRIVATE cameraCpp)
