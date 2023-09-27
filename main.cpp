@@ -7,9 +7,10 @@
 #include <iostream>
 #include <math.h>
 
+
+#include "bsp.h"
 #include "camera.h"
 #include "shader.h"
-
 #include "glm.hpp"
 #include "gtc/matrix_transform.hpp"
 #include "gtc/type_ptr.hpp"
@@ -87,6 +88,8 @@ void mouseCallback(GLFWwindow* window, double xpos, double ypos)
 
 int main()
 {
+    vbsp::BSP mapTrainstation("maps/d1_trainstation_01.bsp");
+
     if (!glfwInit())
         std::cout << "[GLFW Init]: Can't init GLFW! Check library including" << std::endl;
 
