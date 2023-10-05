@@ -7,41 +7,50 @@
 
 #include <filesystem>
 #include <fstream>
-#include <vector>
 #include <iostream>
+#include <vector>
 #include <string>
 #include <sstream>
 #include <memory.h>
 
-namespace vbsp
+#include "bspstructs.h"
+
+namespace valve
 {
     // Reference: https://developer.valvesoftware.com/wiki/BSP_(Source)
-    constexpr int HEADER_LUMPS = 64;
-
-    struct lump_t
-    {
-        int32_t fileofs = 0;      // offset into file (bytes)
-        int32_t filelen = 0;      // length of lump (bytes)
-        int32_t version = 0;      // lump format version
-        char fourCC[4];    // lump ident code
-    };
-
-    struct header_t
-    {
-        int32_t ident = 0;
-        int32_t version = 0;
-        lump_t lumps[HEADER_LUMPS];
-        int32_t mapRevision = 0;
-    };
 
     class BSP
     {
+    private:
+        char *rawMapData = nullptr;
+        int verticesArraySize = 0;
+
+        void getDataFromMap();
+        void getLump(bsp::Lumps lumpType);
+
     public:
-        explicit BSP(std::string filepath);
+        explicit BSP(const std::string &filepath);
+        ~BSP();
 
-        header_t header;
+        bsp::header_t header;
 
+        bsp::vector_t *vertices = nullptr;
+        bsp::plane_t *planes = nullptr;
+        bsp::node_t *nodes = nullptr;
+        bsp::leaf_t *leafs = nullptr;
+        bsp::brush_t *brushes = nullptr;
+        bsp::face_t *faces = nullptr;
+
+        int numMapVertices = 0;
+        int numMapPlanes = 0;
+        int numMapNodes = 0;
+        int numMapLeafs = 0;
+        int numMapBrushes = 0;
+        int numMapFaces = 0;
+
+        int getVerticesArraySize();
         bool isVbsp(int32_t id);
+        bool isHl2Version();
     };
 
 } // vbsp

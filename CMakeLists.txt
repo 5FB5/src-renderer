@@ -8,7 +8,8 @@ include_directories(libs/valve)
 
 set(CMAKE_CXX_STANDARD 17)
 
-set(HEADERS libs/valve/bsp.h
+set(HEADERS libs/valve/bspstructs.h
+            libs/valve/bsp.h
             libs/shader/shader.h
             libs/camera/camera.h)
 set(SOURCES main.cpp

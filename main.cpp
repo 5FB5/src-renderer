@@ -88,7 +88,9 @@ void mouseCallback(GLFWwindow* window, double xpos, double ypos)
 
 int main()
 {
-    vbsp::BSP mapTrainstation("maps/d1_trainstation_01.bsp");
+    valve::BSP mapTrainstation("maps/d1_trainstation_01.bsp");
+
+    std::cout << "[src_renderer]: Init window" << std::endl;
 
     if (!glfwInit())
         std::cout << "[GLFW Init]: Can't init GLFW! Check library including" << std::endl;
@@ -176,17 +178,18 @@ int main()
     glGenVertexArrays(3, VAOs);
     glGenBuffers(3, VBOs);
 
-    // light
+    // hl2 map
     glBindVertexArray(VAOs[0]);
-    glBindBuffer(GL_ARRAY_BUFFER, VBOs[0]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), static_cast<GLvoid*>(0));
+    glBindBuffer(GL_ARRAY_BUFFER, VBOs[0]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * mapTrainstation.numMapVertices, mapTrainstation.vertices, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), static_cast<GLvoid*>(0));
 
     glEnableVertexAttribArray(0);
 
-    glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
 
     // box
     glBindVertexArray(VAOs[1]);
@@ -200,12 +203,10 @@ int main()
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
 
-    glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
 
     glEnable(GL_DEPTH_TEST);
-
-    float rotationRadius = 10.f;
 
     while(!glfwWindowShouldClose(mainWindow))
     {
@@ -226,51 +227,18 @@ int main()
         float aspect = static_cast<GLfloat>(width) / static_cast<GLfloat>(height);
         matProjection = glm::perspective(glm::radians(50.0f), aspect, 0.1f, 100.f);
 
-        GLfloat lightPosX = std::sin(glfwGetTime()) * rotationRadius;
-        GLfloat lightPosY = 0.f;//std::cos(glfwGetTime()) * rotationRadius;
-        GLfloat lightPosZ = std::cos(glfwGetTime()) * rotationRadius;
-
         glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        shaderLightBox.use();
-
-        glBindVertexArray(0);
-
-        // Draw light
-        glBindVertexArray(VAOs[0]);
-
-        GLuint _matModelLocation = glGetUniformLocation(shaderLightBox.program, "matModel");
-        GLuint _matViewLocation = glGetUniformLocation(shaderLightBox.program, "matView");
-        GLuint _matProjLocation = glGetUniformLocation(shaderLightBox.program, "matProj");
-
-        GLuint _lightColorLocation = glGetUniformLocation(shaderLightBox.program, "lightColor");
-        GLuint _objColorLocation = glGetUniformLocation(shaderLightBox.program, "objColor");
-
-        glUniform3f(_lightColorLocation, 1.0f, 1.0f, 1.0f);
-        glUniform3f(_objColorLocation, 1.0f, 0.5f, 0.31f);
-
-        glm::mat4x4 matBox(1.0f);
-
-        matBox = glm::scale(matBox, glm::vec3(0.2f));
-        matBox = glm::translate(matBox, glm::vec3(lightPosX, lightPosY , lightPosZ));
-
-        glUniformMatrix4fv(_matModelLocation, 1, GL_FALSE, glm::value_ptr(matBox));
-        glUniformMatrix4fv(_matViewLocation, 1, GL_FALSE, glm::value_ptr(matView));
-        glUniformMatrix4fv(_matProjLocation, 1, GL_FALSE, glm::value_ptr(matProjection));
-
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-
         shaderColorBox.use();
 
-        // Draw color boxes
+//         Draw color box
         glBindVertexArray(VAOs[1]);
 
-        glm::mat4 _matModel(1.0f);
-        _matModel = glm::translate(_matModel, glm::vec3(0.0f, 0.0f, 0.0f));
+        glm::mat4 model(1.0f);
+        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
 
         GLuint cameraPosLocation = glGetUniformLocation(shaderColorBox.program, "cameraPos");
-        GLuint lightPosLocation = glGetUniformLocation(shaderColorBox.program, "lightPos");
 
         GLuint matModelLocation = glGetUniformLocation(shaderColorBox.program, "matModel");
         GLuint matViewLocation = glGetUniformLocation(shaderColorBox.program, "matView");
@@ -280,15 +248,32 @@ int main()
         GLuint objColorLocation = glGetUniformLocation(shaderColorBox.program, "objColor");
 
         glUniform3f(cameraPosLocation, camera.position.x, camera.position.y, camera.position.z);
-        glUniform3f(lightPosLocation, lightPosX, lightPosY, lightPosZ);
         glUniform3f(lightColorLocation, 1.0f, 1.0f, 1.0f);
-        glUniform3f(objColorLocation, 1.0f, .5f, 1.0f);
+        glUniform3f(objColorLocation, 1.0f, 1.0f, 1.0f);
 
-        glUniformMatrix4fv(matModelLocation, 1, GL_FALSE, glm::value_ptr(_matModel));
+        glUniformMatrix4fv(matModelLocation, 1, GL_FALSE, glm::value_ptr(model));
         glUniformMatrix4fv(matViewLocation, 1, GL_FALSE, glm::value_ptr(matView));
         glUniformMatrix4fv(matProjLocation, 1, GL_FALSE, glm::value_ptr(matProjection));
 
         glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        shaderLightBox.use();
+//
+//        // Draw map
+//        glBindVertexArray(VAOs[0]);
+//
+//        glm::mat4 _matModel(1.0f);
+//        _matModel = glm::translate(_matModel, glm::vec3(0.0f, 0.0f, 0.0f));
+//
+//        GLuint _matModelLocation = glGetUniformLocation(shaderColorBox.program, "matModel");
+//        GLuint _matViewLocation = glGetUniformLocation(shaderColorBox.program, "matView");
+//        GLuint _matProjLocation = glGetUniformLocation(shaderColorBox.program, "matProj");
+//
+//        glUniformMatrix4fv(_matModelLocation, 1, GL_FALSE, glm::value_ptr(_matModel));
+//        glUniformMatrix4fv(_matViewLocation, 1, GL_FALSE, glm::value_ptr(matView));
+//        glUniformMatrix4fv(_matProjLocation, 1, GL_FALSE, glm::value_ptr(matProjection));
+//
+//        glDrawArrays(GL_TRIANGLES, 0, mapTrainstation.getVerticesArraySize());
 
         glfwPollEvents();
         moveCamera();

@@ -13,23 +13,15 @@ uniform vec3 objColor;
 void main()
 {
     float ambientCoef = 0.1f;
-    float specularCoef = 0.5f;
-
-    vec3 viewDir = normalize(cameraPos - FragPos);
 
     vec3 ambient = ambientCoef * lightColor;
-
     vec3 norm = normalize(Normal);
-    vec3 lightDir = normalize(LightPos - FragPos);
+    vec3 viewDir = normalize(cameraPos.xyz - FragPos);
 
-    vec3 reflectDir = reflect(-lightDir, norm);
-    float specComponent = pow(max(dot(viewDir, reflectDir), 0.0f), 32);
-
-    vec3 specular = specularCoef * specComponent * lightColor;
-    float diff = max(dot(norm, lightDir), 0.0f);
+    float diff = max(dot(norm, viewDir), 0.0f);
     vec3 diffuse = diff * lightColor;
 
-    vec3 result = (ambient + diffuse + specular) * objColor;
+    vec3 result = (ambient + diffuse) * objColor;
 
     color = vec4(result, 1.0f);
 }
