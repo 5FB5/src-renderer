@@ -33,7 +33,7 @@ static void glfwError(int id, const char* desc)
 void moveCamera()
 {
     if (isSprint)
-       camera.movementSpeed = 30.0f;
+        camera.movementSpeed = 130.0f;
     else
         camera.movementSpeed = 5.f;
 
@@ -64,12 +64,11 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode
         isSprint = true;
     else if (!keys[GLFW_KEY_LEFT_SHIFT])
         isSprint = false;
-
 }
 
 void mouseCallback(GLFWwindow* window, double xpos, double ypos)
 {
-    if(firstMouse)
+    if (firstMouse)
     {
         mouseLastX = xpos;
         mouseLastY = ypos;
@@ -88,7 +87,7 @@ void mouseCallback(GLFWwindow* window, double xpos, double ypos)
 
 int main()
 {
-    valve::BSP mapTrainstation("maps/d1_trainstation_01.bsp");
+    const valve::BSP map("maps/cube.bsp");
 
     std::cout << "[src_renderer]: Init window" << std::endl;
 
@@ -96,12 +95,12 @@ int main()
         std::cout << "[GLFW Init]: Can't init GLFW! Check library including" << std::endl;
 
     glfwSetErrorCallback(glfwError);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
 
-    GLFWwindow *mainWindow = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "src_renderer", nullptr, nullptr);
+    GLFWwindow* mainWindow = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "src_renderer", nullptr, nullptr);
 
     if (mainWindow == nullptr)
     {
@@ -127,93 +126,33 @@ int main()
     int width, height;
 
     Shader shaderColorBox("shaders/vertex.vert", "shaders/color.frag");
-    Shader shaderLightBox("shaders/vertexNoNormals.vert", "shaders/light.frag");
 
-    float vertices[] = {
-            -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-            0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-            0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-            0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-            -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+    GLuint VAO, VBO;
 
-            -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-            0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-            0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-            0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-            -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-            -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-
-            -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-            -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-            -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-            -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-            -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-            -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-
-            0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-            0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-            0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-            0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-            0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-            0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-
-            -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-            0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-            0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-            0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-            -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-
-            -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-            0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-            0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-            0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-            -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-            -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
-    };
-
-    GLuint VAOs[3], VBOs[3];
-
-    glGenVertexArrays(3, VAOs);
-    glGenBuffers(3, VBOs);
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
 
     // hl2 map
-    glBindVertexArray(VAOs[0]);
+    glBindVertexArray(VAO);
 
-    glBindBuffer(GL_ARRAY_BUFFER, VBOs[0]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * mapTrainstation.numMapVertices, mapTrainstation.vertices, GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * map.verticesToDraw.size(), map.verticesToDraw.data(), GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), static_cast<GLvoid*>(0));
-
-    glEnableVertexAttribArray(0);
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-
-    // box
-    glBindVertexArray(VAOs[1]);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBOs[1]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), static_cast<GLvoid*>(0));
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), reinterpret_cast<GLvoid*>(3 * sizeof(GLfloat)));
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), static_cast<GLvoid*>(0));
 
     glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(1);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
     glEnable(GL_DEPTH_TEST);
 
-    while(!glfwWindowShouldClose(mainWindow))
+    while (!glfwWindowShouldClose(mainWindow))
     {
         glfwGetFramebufferSize(mainWindow, &width, &height);
         glViewport(0, 0, width, height);
 
-        GLfloat currentFrame = static_cast<GLfloat>(glfwGetTime());
+        const GLfloat currentFrame = static_cast<GLfloat>(glfwGetTime());
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
@@ -232,48 +171,21 @@ int main()
 
         shaderColorBox.use();
 
-//         Draw color box
-        glBindVertexArray(VAOs[1]);
+        // Draw map
+        glBindVertexArray(VAO);
 
-        glm::mat4 model(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+        glm::mat4 _matModel(1.0f);
+        _matModel = glm::translate(_matModel, glm::vec3(0.0f, 0.0f, 0.0f));
 
-        GLuint cameraPosLocation = glGetUniformLocation(shaderColorBox.program, "cameraPos");
+        GLuint _matModelLocation = glGetUniformLocation(shaderColorBox.program, "matModel");
+        GLuint _matViewLocation = glGetUniformLocation(shaderColorBox.program, "matView");
+        GLuint _matProjLocation = glGetUniformLocation(shaderColorBox.program, "matProj");
 
-        GLuint matModelLocation = glGetUniformLocation(shaderColorBox.program, "matModel");
-        GLuint matViewLocation = glGetUniformLocation(shaderColorBox.program, "matView");
-        GLuint matProjLocation = glGetUniformLocation(shaderColorBox.program, "matProj");
+        glUniformMatrix4fv(_matModelLocation, 1, GL_FALSE, glm::value_ptr(_matModel));
+        glUniformMatrix4fv(_matViewLocation, 1, GL_FALSE, glm::value_ptr(matView));
+        glUniformMatrix4fv(_matProjLocation, 1, GL_FALSE, glm::value_ptr(matProjection));
 
-        GLuint lightColorLocation = glGetUniformLocation(shaderColorBox.program, "lightColor");
-        GLuint objColorLocation = glGetUniformLocation(shaderColorBox.program, "objColor");
-
-        glUniform3f(cameraPosLocation, camera.position.x, camera.position.y, camera.position.z);
-        glUniform3f(lightColorLocation, 1.0f, 1.0f, 1.0f);
-        glUniform3f(objColorLocation, 1.0f, 1.0f, 1.0f);
-
-        glUniformMatrix4fv(matModelLocation, 1, GL_FALSE, glm::value_ptr(model));
-        glUniformMatrix4fv(matViewLocation, 1, GL_FALSE, glm::value_ptr(matView));
-        glUniformMatrix4fv(matProjLocation, 1, GL_FALSE, glm::value_ptr(matProjection));
-
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-
-        shaderLightBox.use();
-//
-//        // Draw map
-//        glBindVertexArray(VAOs[0]);
-//
-//        glm::mat4 _matModel(1.0f);
-//        _matModel = glm::translate(_matModel, glm::vec3(0.0f, 0.0f, 0.0f));
-//
-//        GLuint _matModelLocation = glGetUniformLocation(shaderColorBox.program, "matModel");
-//        GLuint _matViewLocation = glGetUniformLocation(shaderColorBox.program, "matView");
-//        GLuint _matProjLocation = glGetUniformLocation(shaderColorBox.program, "matProj");
-//
-//        glUniformMatrix4fv(_matModelLocation, 1, GL_FALSE, glm::value_ptr(_matModel));
-//        glUniformMatrix4fv(_matViewLocation, 1, GL_FALSE, glm::value_ptr(matView));
-//        glUniformMatrix4fv(_matProjLocation, 1, GL_FALSE, glm::value_ptr(matProjection));
-//
-//        glDrawArrays(GL_TRIANGLES, 0, mapTrainstation.getVerticesArraySize());
+        glDrawArrays(GL_TRIANGLES, 0, map.verticesToDraw.size() / 3);
 
         glfwPollEvents();
         moveCamera();
@@ -283,8 +195,8 @@ int main()
 
     std::cout << "[src_renderer]: Closing window..." << std::endl;
 
-    glDeleteVertexArrays(3, VAOs);
-    glDeleteBuffers(3, VBOs);
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(1, &VBO);
     glfwTerminate();
 
     return 0;

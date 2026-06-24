@@ -6,7 +6,7 @@ include_directories(libs/shader)
 include_directories(libs/camera)
 include_directories(libs/valve)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 set(HEADERS libs/valve/bspstructs.h
             libs/valve/bsp.h
@@ -17,7 +17,7 @@ set(SOURCES main.cpp
             libs/camera/camera.cpp
             libs/valve/bsp.cpp)
 
-find_package(glfw REQUIRED)
+find_package(glfw3 REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 

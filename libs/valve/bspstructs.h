@@ -14,6 +14,7 @@ namespace bsp
 {
     using vector_t = glm::vec3;
     using vertex_t = glm::vec3;
+    using surfedge_t = int32_t;
 
     constexpr int MAPVERSION_HL2_MIN = 19;
     constexpr int MAPVERSION_HL2_MAX = 20;
@@ -246,23 +247,28 @@ namespace bsp
 
     struct face_t
     {
-        unsigned short  planenum;               // the plane number
-        uint8_t           side;                   // faces opposite to the node's plane direction
-        uint8_t            onNode;                 // 1 of on node, 0 if in leaf
-        int             firstedge;              // index into surfedges
-        short           numedges;               // number of surfedges
-        short           texinfo;                // texture info
-        short           dispinfo;               // displacement info
-        short           surfaceFogVolumeID;     // ?
-        uint8_t            styles[4];              // switchable lighting info
-        int             lightofs;               // offset into lightmap lump
-        float           area;                   // face area in units^2
-        int             LightmapTextureMinsInLuxels[2]; // texture lighting info
-        int             LightmapTextureSizeInLuxels[2]; // texture lighting info
-        int             origFace;               // original face this was split from
-        unsigned short  numPrims;               // primitives
-        unsigned short  firstPrimID;
-        unsigned int    smoothingGroups;        // lightmap smoothing group
+        unsigned short      planenum;               // the plane number
+        uint8_t             side;                   // faces opposite to the node's plane direction
+        uint8_t             onNode;                 // 1 of on node, 0 if in leaf
+        int                 firstedge;              // index into surfedges
+        short               numedges;               // number of surfedges
+        short               texinfo;                // texture info
+        short               dispinfo;               // displacement info
+        short               surfaceFogVolumeID;     // ?
+        uint8_t             styles[4];              // switchable lighting info
+        int                 lightofs;               // offset into lightmap lump
+        float               area;                   // face area in units^2
+        int                 LightmapTextureMinsInLuxels[2]; // texture lighting info
+        int                 LightmapTextureSizeInLuxels[2]; // texture lighting info
+        int                 origFace;               // original face this was split from
+        unsigned short      numPrims;               // primitives
+        unsigned short      firstPrimID;
+        unsigned int        smoothingGroups;        // lightmap smoothing group
+    };
+
+    struct edge_t
+    {
+        unsigned short	v[2];
     };
 
 }
