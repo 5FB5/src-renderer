@@ -1,21 +1,27 @@
 cmake_minimum_required(VERSION 3.25)
 project(src_renderer)
 
-include_directories(includes)
-include_directories(includes/glm/glm)
-include_directories(includes/shader)
+include_directories(libs/glm/glm)
+include_directories(libs/shader)
+include_directories(libs/camera)
+include_directories(libs/valve)
 
-include_directories(shaders)
-include_directories(resources)
+set(CMAKE_CXX_STANDARD 20)
 
-add_library(shadersCpp includes/shader/shader.cpp)
+set(HEADERS libs/valve/bspstructs.h
+            libs/valve/bsp.h
+            libs/shader/shader.h
+            libs/camera/camera.h)
+set(SOURCES main.cpp
+            libs/shader/shader.cpp
+            libs/camera/camera.cpp
+            libs/valve/bsp.cpp)
 
-set(CMAKE_CXX_STANDARD 17)
-set(SOURCES main.cpp)
-
+find_package(glfw3 REQUIRED)
 find_package(OpenGL REQUIRED)
+find_package(GLEW REQUIRED)
 
-add_executable(${PROJECT_NAME} ${SOURCES})
+add_executable(${PROJECT_NAME} ${HEADERS} ${SOURCES})
 
 add_custom_command(
         TARGET ${PROJECT_NAME} POST_BUILD
@@ -32,29 +38,28 @@ add_custom_command(
 add_custom_command(
         TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy
-        ${CMAKE_SOURCE_DIR}/shaders/vertex.glsl
-        ${CMAKE_CURRENT_BINARY_DIR}/shaders/vertex.glsl)
+        ${CMAKE_SOURCE_DIR}/shaders/vertex.vert
+        ${CMAKE_CURRENT_BINARY_DIR}/shaders/vertex.vert)
 
 add_custom_command(
         TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy
-        ${CMAKE_SOURCE_DIR}/shaders/fragment.glsl
-        ${CMAKE_CURRENT_BINARY_DIR}/shaders/fragment.glsl)
+        ${CMAKE_SOURCE_DIR}/shaders/vertexNoNormals.vert
+        ${CMAKE_CURRENT_BINARY_DIR}/shaders/vertexNoNormals.vert)
 
 add_custom_command(
         TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy
-        ${CMAKE_SOURCE_DIR}/shaders/fragment2.glsl
-        ${CMAKE_CURRENT_BINARY_DIR}/shaders/fragment2.glsl)
+        ${CMAKE_SOURCE_DIR}/shaders/color.frag
+        ${CMAKE_CURRENT_BINARY_DIR}/shaders/color.frag)
 
 add_custom_command(
         TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy
-        ${CMAKE_SOURCE_DIR}/shaders/fragment3.glsl
-        ${CMAKE_CURRENT_BINARY_DIR}/shaders/fragment3.glsl)
+        ${CMAKE_SOURCE_DIR}/shaders/light.frag
+        ${CMAKE_CURRENT_BINARY_DIR}/shaders/light.frag)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
 target_link_libraries(${PROJECT_NAME} PRIVATE GLEW)
 target_link_libraries(${PROJECT_NAME} PRIVATE SOIL)
 target_link_libraries(${PROJECT_NAME} PRIVATE OpenGL::GL)
-target_link_libraries(${PROJECT_NAME} PRIVATE shadersCpp)
