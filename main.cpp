@@ -15,7 +15,7 @@
 #include "gtc/matrix_transform.hpp"
 #include "gtc/type_ptr.hpp"
 
-Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+Camera *camera = nullptr;
 
 GLfloat deltaTime = 0.0f;
 GLfloat lastFrame = 0.0f;
@@ -33,18 +33,18 @@ static void glfwError(int id, const char* desc)
 void moveCamera()
 {
     if (isSprint)
-        camera.movementSpeed = 130.0f;
+        camera->movementSpeed = 80.0f;
     else
-        camera.movementSpeed = 5.f;
+        camera->movementSpeed = 10.f;
 
     if (keys[GLFW_KEY_W])
-        camera.processMovement(CameraMovement::FORWARD, deltaTime);
+        camera->processMovement(CameraMovement::FORWARD, deltaTime);
     if (keys[GLFW_KEY_S])
-        camera.processMovement(CameraMovement::BACKWARD, deltaTime);
+        camera->processMovement(CameraMovement::BACKWARD, deltaTime);
     if (keys[GLFW_KEY_A])
-        camera.processMovement(CameraMovement::LEFT, deltaTime);
+        camera->processMovement(CameraMovement::LEFT, deltaTime);
     if (keys[GLFW_KEY_D])
-        camera.processMovement(CameraMovement::RIGHT, deltaTime);
+        camera->processMovement(CameraMovement::RIGHT, deltaTime);
 }
 
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode)
@@ -82,12 +82,15 @@ void mouseCallback(GLFWwindow* window, double xpos, double ypos)
     mouseLastX = xpos;
     mouseLastY = ypos;
 
-    camera.processMouseMovement(xoffset, yoffset);
+    camera->processMouseMovement(xoffset, yoffset);
 }
 
 int main()
 {
-    const valve::BSP map("maps/cube.bsp");
+    const valve::BSP map("maps/devtest_07.bsp");
+
+    camera = new Camera(map.playerSpawn);
+    camera->position.y += 1.62f;
 
     std::cout << "[src_renderer]: Init window" << std::endl;
 
@@ -138,9 +141,11 @@ int main()
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * map.verticesToDraw.size(), map.verticesToDraw.data(), GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), static_cast<GLvoid*>(0));
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), static_cast<GLvoid*>(0));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), reinterpret_cast<GLvoid*>(3 * sizeof(float)));
 
     glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
@@ -157,14 +162,14 @@ int main()
         lastFrame = currentFrame;
 
         glm::mat4x4 matView(1.0f);
-        matView = camera.getViewMatrix();
+        matView = camera->getViewMatrix();
 
         // Model, view, projection matrix init
         glm::mat4x4 matModel(1.0f);
         glm::mat4x4 matProjection(1.0f);
 
         float aspect = static_cast<GLfloat>(width) / static_cast<GLfloat>(height);
-        matProjection = glm::perspective(glm::radians(50.0f), aspect, 0.1f, 100.f);
+        matProjection = glm::perspective(glm::radians(70.0f), aspect, 0.1f, 10000.f);
 
         glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -176,6 +181,8 @@ int main()
 
         glm::mat4 _matModel(1.0f);
         _matModel = glm::translate(_matModel, glm::vec3(0.0f, 0.0f, 0.0f));
+        _matModel = glm::rotate(_matModel, glm::radians(-90.f), glm::vec3(1.0f, 0.0f, 0.0f));
+        _matModel = glm::scale(_matModel, glm::vec3(0.0254f, 0.0254f, 0.0254f));
 
         GLuint _matModelLocation = glGetUniformLocation(shaderColorBox.program, "matModel");
         GLuint _matViewLocation = glGetUniformLocation(shaderColorBox.program, "matView");
@@ -198,6 +205,8 @@ int main()
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
     glfwTerminate();
+
+    delete camera;
 
     return 0;
 }

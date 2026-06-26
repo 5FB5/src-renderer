@@ -5,6 +5,7 @@
 #ifndef SRC_RENDERER_BSP_H
 #define SRC_RENDERER_BSP_H
 
+#include <regex>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -24,8 +25,11 @@ namespace valve
     public:
         explicit BSP(const std::string &filepath);
         ~BSP();
+        void generateTris();
 
         bsp::header_t header;
+
+        glm::vec3 playerSpawn = glm::vec3(0.0f, 0.0f, 0.0f);
 
         bsp::vertex_t *vertices = nullptr;
         bsp::plane_t *planes = nullptr;
@@ -35,8 +39,14 @@ namespace valve
         bsp::face_t *faces = nullptr;
         bsp::edge_t *edges = nullptr;
         bsp::surfedge_t *surfedges = nullptr;
+        bsp::texinfo_t *texinfos = nullptr;
+        bsp::texdata_t *texdatas = nullptr;
+        int32_t *textable = nullptr;
+        char *texStringDatas = nullptr;
+        std::string texStringData = "";
 
         std::vector<float> verticesToDraw;
+        std::vector<std::string> entitiesStrs;
 
         int numMapVertices = 0;
         int numMapPlanes = 0;
@@ -46,16 +56,22 @@ namespace valve
         int numMapFaces = 0;
         int numMapEdges = 0;
         int numMapSurfEdges = 0;
+        int numMapTexInfo = 0;
+        int numMapTexData = 0;
+        int numMapTexTable = 0;
+        int numMapTexStringData = 0;
 
         int getVerticesArraySize();
         bool isVbsp(int32_t id);
         bool isHl2Version();
 
     private:
+        std::string rawEntitiesTextBuffer = "";
         char *rawMapData = nullptr;
         int verticesArraySize = 0;
 
         void getDataFromMap();
+        void getEntitesData();
         void getLump(bsp::Lumps lumpType);
     };
 
